@@ -1,0 +1,59 @@
+[
+  { "nombre": "Provoleta", "categoria": "Para picar", "precio": 6000 },
+  { "nombre": "Mix verde-Prosciutto", "categoria": "Ensalada", "precio": 6000 },
+  { "nombre": "Confit de Pato", "categoria": "Principal", "precio": 13000 },
+  { "nombre": "Filete Roquefort", "categoria": "Principal", "precio": 14000 },
+  {
+    "nombre": "Risotto de Camarones",
+    "categoria": "Principal",
+    "precio": 10500
+  },
+  {
+    "nombre": "Sorrentinos de Berenjena",
+    "categoria": "Principal",
+    "precio": 8500
+  },
+  { "nombre": "Ravioles de Zapallo", "categoria": "Principal", "precio": 9500 },
+  { "nombre": "Pisco Sour", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Vaina", "categoria": "Para tomar", "precio": 2800 },
+  { "nombre": "Sol", "categoria": "Para tomar", "precio": 2500 },
+  { "nombre": "Heineken", "categoria": "Para tomar", "precio": 2500 },
+  { "nombre": "Kunstman Lager", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Kunstman IPA", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Kunstman Torobayo", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Kunstman Bock", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Kunstman Arándanos", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Kunstman Miel", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Kunstman Chocolate", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Guayacan Golden", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Guayacan Stout", "categoria": "Para tomar", "precio": 3500 },
+  { "nombre": "Bebidas", "categoria": "Para tomar", "precio": 2000 },
+  {
+    "nombre": "Agua Mineral c/n gas",
+    "categoria": "Para tomar",
+    "precio": 2000
+  },
+  {
+    "nombre": "Agua Mineral s/n gas",
+    "categoria": "Para tomar",
+    "precio": 2000
+  },
+  { "nombre": "Jugo Frutilla", "categoria": "Para tomar", "precio": 2300 },
+  { "nombre": "Jugo Frambuesa", "categoria": "Para tomar", "precio": 2300 },
+  { "nombre": "Limonada", "categoria": "Para tomar", "precio": 2300 },
+  { "nombre": "Cafe", "categoria": "Para tomar", "precio": 1800 },
+  { "nombre": "Aguita", "categoria": "Para tomar", "precio": 1000 },
+  { "nombre": "Pizza 1", "categoria": "Pizza", "precio": 9000 },
+  { "nombre": "Pizza 2", "categoria": "Pizza", "precio": 9000 },
+  { "nombre": "Pizza 3", "categoria": "Pizza", "precio": 7500 },
+  { "nombre": "Pizza 4", "categoria": "Pizza", "precio": 8500 },
+  { "nombre": "Pizza 5", "categoria": "Pizza", "precio": 8000 },
+  { "nombre": "Pizza 6", "categoria": "Pizza", "precio": 9000 },
+  { "nombre": "Pizza 7", "categoria": "Pizza", "precio": 8500 },
+  { "nombre": "Pizza 8", "categoria": "Pizza", "precio": 9000 },
+  { "nombre": "Pizza 9", "categoria": "Pizza", "precio": 8500 },
+  { "nombre": "Pizza Pepperonni", "categoria": "Pizza", "precio": 8000 },
+  { "nombre": "Brownie de chocolate", "categoria": "Postre", "precio": 3600 },
+  { "nombre": "Creme Brulee", "categoria": "Postre", "precio": 3300 },
+  { "nombre": "Tarte Tatin", "categoria": "Postre", "precio": 3600 }
+]

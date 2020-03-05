@@ -44,5 +44,8 @@
     "@types/validator": "^10.11.3",
     "typescript": "3.6.3"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "main": "index.js",
+  "repository": "https://github.com/rodolfo-seguel/SC-Horarios.git",
+  "author": "Tomás Herceg <tomasherceg@hotmail.com>"
 }
