@@ -1,5 +1,7 @@
 import React, { Component, useState } from "react";
-import { Form, Checkbox } from "semantic-ui-react";
+import { Checkbox, Form } from "semantic-ui-react";
+import { useImmer } from "use-immer";
+
 import foods from "../src/const/foods.json";
 import tables from "../src/const/tables.json";
 
@@ -17,7 +19,7 @@ function test() {
   }, {});
 
   const [selectedTable, setSelectedTable] = useState<string | undefined>();
-  const [foodsByTable, setFoodsByTable] = useState<
+  const [foodsByTable, setFoodsByTable] = useImmer<
     Record<string, { nombre: string; precio: number; categoria: string }[]>
   >({});
 
@@ -29,9 +31,10 @@ function test() {
         </div>
         <div className="ui bottom attached active tab segment">
           <div className="ui buttons">
-            {tables.map(mesa => {
+            {tables.map((mesa, key) => {
               return (
                 <div
+                  key={key}
                   className={
                     selectedTable === mesa.nombre
                       ? "ui button active"
@@ -40,10 +43,8 @@ function test() {
                   onClick={() => {
                     setSelectedTable(mesa.nombre);
                     if (!(mesa.nombre in foodsByTable)) {
-                      setFoodsByTable(oldObject => {
-                        oldObject[mesa.nombre] = [];
-
-                        return oldObject;
+                      setFoodsByTable(draft => {
+                        draft[mesa.nombre] = [];
                       });
                     }
                     //Aqui agregar lo de foods a table
@@ -75,18 +76,11 @@ function test() {
                         className="ui button"
                         onClick={() => {
                           if (selectedTable) {
-                            setFoodsByTable(oldObject => {
-                              const newSelectedTableData = [
-                                ...oldObject[selectedTable]
-                              ];
-                              newSelectedTableData.splice(
-                                newSelectedTableData.findIndex(element => {
-                                  return element.nombre === food.nombre;
-                                }),
+                            setFoodsByTable(draft => {
+                              draft[selectedTable].splice(
+                                draft[selectedTable].indexOf(food),
                                 1
                               );
-                              oldObject[selectedTable] = newSelectedTableData;
-                              return { ...oldObject };
                             });
                           }
                         }}
@@ -97,12 +91,8 @@ function test() {
                         className="ui button"
                         onClick={() => {
                           if (selectedTable) {
-                            setFoodsByTable(oldObject => {
-                              oldObject[selectedTable] = [
-                                ...oldObject[selectedTable],
-                                food
-                              ];
-                              return { ...oldObject };
+                            setFoodsByTable(draft => {
+                              draft[selectedTable].push(food);
                             });
                           }
                         }}
