@@ -1,5 +1,6 @@
 import React, { Component, useState } from "react";
-import { Form, Checkbox } from "semantic-ui-react";
+import { Checkbox, Form } from "semantic-ui-react";
+
 import foods from "../src/const/foods.json";
 import tables from "../src/const/tables.json";
 
@@ -29,9 +30,10 @@ function test() {
         </div>
         <div className="ui bottom attached active tab segment">
           <div className="ui buttons">
-            {tables.map(mesa => {
+            {tables.map((mesa, key) => {
               return (
                 <div
+                  key={key}
                   className={
                     selectedTable === mesa.nombre
                       ? "ui button active"
