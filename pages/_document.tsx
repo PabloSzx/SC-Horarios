@@ -7,12 +7,10 @@ export default class MyDocument extends Document {
         <Head>
           <link
             rel="stylesheet"
-            href="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"
+            href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"
           />
-          <link rel="stylesheet" type="text/css" href="/static/style.css" />
-          <link rel="stylesheet" type="text/css" href="/static/nprogress.css" />
           <meta charSet="utf-8" />
-          <link rel="shortcut icon" href="/static/favicon.ico" />
+          <link rel="shortcut icon" href="/favicon.ico" />
         </Head>
         <body>
           <Main />
