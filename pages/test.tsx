@@ -1,9 +1,9 @@
 import React, { Component, useState } from "react";
-import { Checkbox, Form } from "semantic-ui-react";
-import { useImmer } from "use-immer";
-
+import { Form, Checkbox, Accordion } from "semantic-ui-react";
 import foods from "../src/const/foods.json";
 import tables from "../src/const/tables.json";
+import _ from "lodash";
+import { Link, animateScroll as scroll } from "react-scroll";
 
 function test() {
   const foodsByCategory = foods.reduce<
@@ -19,7 +19,7 @@ function test() {
   }, {});
 
   const [selectedTable, setSelectedTable] = useState<string | undefined>();
-  const [foodsByTable, setFoodsByTable] = useImmer<
+  const [foodsByTable, setFoodsByTable] = useState<
     Record<string, { nombre: string; precio: number; categoria: string }[]>
   >({});
 
@@ -31,10 +31,9 @@ function test() {
         </div>
         <div className="ui bottom attached active tab segment">
           <div className="ui buttons">
-            {tables.map((mesa, key) => {
+            {tables.map(mesa => {
               return (
                 <div
-                  key={key}
                   className={
                     selectedTable === mesa.nombre
                       ? "ui button active"
@@ -43,8 +42,10 @@ function test() {
                   onClick={() => {
                     setSelectedTable(mesa.nombre);
                     if (!(mesa.nombre in foodsByTable)) {
-                      setFoodsByTable(draft => {
-                        draft[mesa.nombre] = [];
+                      setFoodsByTable(oldObject => {
+                        oldObject[mesa.nombre] = [];
+
+                        return oldObject;
                       });
                     }
                     //Aqui agregar lo de foods a table
@@ -65,77 +66,109 @@ function test() {
       return (
         //Cada return es un "hijo"
         <ol className="ui list" key={categoria}>
-          <li>
-            {categoria}
-            <div className="ui middle aligned divided list">
-              {foods.map((food, key) => {
-                return (
-                  <div className="item" key={key}>
-                    <div className="right floated content">
-                      <div
-                        className="ui button"
-                        onClick={() => {
-                          if (selectedTable) {
-                            setFoodsByTable(draft => {
-                              draft[selectedTable].splice(
-                                draft[selectedTable].indexOf(food),
-                                1
-                              );
-                            });
-                          }
-                        }}
-                      >
-                        Remove
+          <div className="ui styled accordion">
+            <li>
+              <div className="title active">
+                <i aria-hidden="false" className="dropdown icon"></i>
+                {categoria}
+              </div>
+              <div className="content active">
+                <div className="ui middle aligned divided list">
+                  {foods.map((food, key) => {
+                    <div className="content active"></div>;
+                    return (
+                      <div className="item" key={key}>
+                        <div className="right floated content">
+                          <div
+                            className="ui button"
+                            onClick={() => {
+                              if (selectedTable) {
+                                setFoodsByTable(oldObject => {
+                                  const newSelectedTableData = [
+                                    ...oldObject[selectedTable]
+                                  ];
+                                  newSelectedTableData.splice(
+                                    newSelectedTableData.findIndex(element => {
+                                      return element.nombre === food.nombre;
+                                    }),
+                                    1
+                                  );
+                                  oldObject[
+                                    selectedTable
+                                  ] = newSelectedTableData;
+                                  return { ...oldObject };
+                                });
+                              }
+                            }}
+                          >
+                            Remove
+                          </div>
+                          <div
+                            className="ui button"
+                            onClick={() => {
+                              if (selectedTable) {
+                                setFoodsByTable(oldObject => {
+                                  oldObject[selectedTable] = [
+                                    ...oldObject[selectedTable],
+                                    food
+                                  ];
+                                  return { ...oldObject };
+                                });
+                              }
+                            }}
+                          >
+                            Add
+                          </div>
+                        </div>
+                        <div className="content">{food.nombre}</div>
                       </div>
-                      <div
-                        className="ui button"
-                        onClick={() => {
-                          if (selectedTable) {
-                            setFoodsByTable(draft => {
-                              draft[selectedTable].push(food);
-                            });
-                          }
-                        }}
-                      >
-                        Add
-                      </div>
-                    </div>
-                    <div className="content">{food.nombre}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </li>
+                    );
+                  })}
+                </div>
+              </div>
+            </li>
+          </div>
         </ol>
       );
     }
   );
-  /*const pedidos = Object.entries(foodsByTable.map(
-    ([categoria, cantidad, comidaEnPedido]) => {
-      return(
-        if(selectedTable){
-
-        }
-      )
-    }
-  )*/
+  const pedidos = Object.entries(foodsByTable).map(([categoria, pedido]) => {
+    return (
+      //Cada return es un "hijo"
+      <ol className="ui list" key={categoria}>
+        {categoria}
+        <div className="ui center aligned list">
+          {pedido.map((pedido, key) => {
+            return (
+              <div className="ui top attached tabular menu">
+                <div className="item" key={key}>
+                  <div className="content">{pedido.nombre}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </ol>
+    );
+  });
 
   return (
-    <div>
-      {tablesList}
-      <div>
-        <div className="ui top attached tabular menu">
-          <div className="active item">
-            Pedidos
-            {JSON.stringify(foodsByTable)}
+    <div className="ui segment">
+      <div className="ui two column very relaxed grid">
+        <div className="column">
+          {tablesList}
+          <div>
+            <div className="ui top attached tabular menu">
+              <div className="active item">Pedidos:</div>
+            </div>
+            <div className="ui bottom attached active tab segment">
+              {pedidos}
+            </div>
           </div>
         </div>
-        <div className="ui bottom attached active tab segment">
-          <p></p>
-          <p></p>
-        </div>
+        <div className="column">{comidasList}</div>
+        <div className="ui vertical divider"></div>
       </div>
-      {comidasList}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Header, Image, Menu, Ref, Segment, Sidebar } from "semantic-ui-react";
+import { Header, Image, Menu, Ref, Segment, Sidebar,Accordion } from "semantic-ui-react";
+
 
 const SidebarExampleTarget = () => {
   const segmentRef = React.useRef();

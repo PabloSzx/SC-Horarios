@@ -25,6 +25,7 @@
     "passport": "^0.4.1",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
+    "react-scroll": "^1.7.16",
     "semantic-ui-react": "^0.88.2",
     "use-immer": "^0.3.5",
     "validator": "^12.2.0"
