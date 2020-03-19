@@ -1,10 +1,11 @@
-import React, { Component, useState } from "react";
-import { Form, Checkbox, Accordion } from "semantic-ui-react";
+import React, { Component, useState, Fragment } from "react";
+import { Form, Checkbox, Accordion, Icon, Menu, Tab } from "semantic-ui-react";
 import foods from "../src/const/foods.json";
 import tables from "../src/const/tables.json";
+import { useImmer } from "use-immer";
 import _ from "lodash";
 import { Link, animateScroll as scroll } from "react-scroll";
-
+import prioridadCategorias from "../src/const/prioridadCategorias.json";
 function test() {
   const foodsByCategory = foods.reduce<
     Record<string, { nombre: string; categoria: string; precio: number }[]>
@@ -25,120 +26,127 @@ function test() {
 
   const tablesList = (
     <>
-      <div>
-        <div className="ui top attached tabular menu">
-          <div className="active item">Mesas</div>
-        </div>
-        <div className="ui bottom attached active tab segment">
-          <div className="ui buttons">
-            {tables.map(mesa => {
-              return (
-                <div
-                  className={
-                    selectedTable === mesa.nombre
-                      ? "ui button active"
-                      : "ui button"
-                  }
-                  onClick={() => {
-                    setSelectedTable(mesa.nombre);
-                    if (!(mesa.nombre in foodsByTable)) {
-                      setFoodsByTable(oldObject => {
-                        oldObject[mesa.nombre] = [];
-
-                        return oldObject;
-                      });
-                    }
-                    //Aqui agregar lo de foods a table
-                  }}
-                >
-                  {mesa.nombre}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      <Menu secondary>
+        <Menu.Item name="Mesas" active={true}>
+          Mesas
+        </Menu.Item>
+      </Menu>
+      <Menu>
+        {tables.map(mesa => {
+          return (
+            <Menu.Item
+              key={mesa.nombre}
+              active={selectedTable === mesa.nombre}
+              onClick={() => {
+                setSelectedTable(mesa.nombre);
+                if (!(mesa.nombre in foodsByTable)) {
+                  setFoodsByTable(oldObject => {
+                    oldObject[mesa.nombre] = [];
+                    return oldObject;
+                  });
+                }
+                //Aqui agregar lo de foods a table
+              }}
+            >
+              {mesa.nombre}
+            </Menu.Item>
+          );
+        })}
+      </Menu>
     </>
   );
-
+  const [accordionActive, setAccordionActive] = useImmer([]);
   const comidasList = Object.entries(foodsByCategory).map(
     ([categoria, foods]) => {
       return (
         //Cada return es un "hijo"
-        <ol className="ui list" key={categoria}>
-          <div className="ui styled accordion">
-            <li>
-              <div className="title active">
-                <i aria-hidden="false" className="dropdown icon"></i>
-                {categoria}
-              </div>
-              <div className="content active">
-                <div className="ui middle aligned divided list">
-                  {foods.map((food, key) => {
-                    <div className="content active"></div>;
-                    return (
-                      <div className="item" key={key}>
-                        <div className="right floated content">
-                          <div
-                            className="ui button"
-                            onClick={() => {
-                              if (selectedTable) {
-                                setFoodsByTable(oldObject => {
-                                  const newSelectedTableData = [
-                                    ...oldObject[selectedTable]
-                                  ];
-                                  newSelectedTableData.splice(
-                                    newSelectedTableData.findIndex(element => {
-                                      return element.nombre === food.nombre;
-                                    }),
-                                    1
-                                  );
-                                  oldObject[
-                                    selectedTable
-                                  ] = newSelectedTableData;
-                                  return { ...oldObject };
-                                });
-                              }
-                            }}
-                          >
-                            Remove
-                          </div>
-                          <div
-                            className="ui button"
-                            onClick={() => {
-                              if (selectedTable) {
-                                setFoodsByTable(oldObject => {
-                                  oldObject[selectedTable] = [
-                                    ...oldObject[selectedTable],
-                                    food
-                                  ];
-                                  return { ...oldObject };
-                                });
-                              }
-                            }}
-                          >
-                            Add
-                          </div>
-                        </div>
-                        <div className="content">{food.nombre}</div>
+        <Fragment key={categoria}>
+          <Accordion.Title
+            active={accordionActive.includes(categoria)}
+            index={0}
+            onClick={() => {
+              if (accordionActive.includes(categoria)) {
+                setAccordionActive(draft => {
+                  draft.splice(draft.indexOf(categoria), 1);
+                });
+              } else {
+                setAccordionActive(draft => {
+                  draft.push(categoria);
+                });
+              }
+            }}
+          >
+            <Icon name="dropdown" />
+            {categoria}
+          </Accordion.Title>
+          <Accordion.Content active={accordionActive.includes(categoria)}>
+            <div className="ui middle aligned divided list">
+              {foods.map((food, key) => {
+                <div className="content active"></div>;
+                return (
+                  <div className="item" key={key}>
+                    <div className="right floated content">
+                      <div
+                        className="ui button"
+                        onClick={() => {
+                          if (selectedTable) {
+                            setFoodsByTable(oldObject => {
+                              const newSelectedTableData = [
+                                ...oldObject[selectedTable]
+                              ];
+                              newSelectedTableData.splice(
+                                newSelectedTableData.findIndex(element => {
+                                  return element.nombre === food.nombre;
+                                }),
+                                1
+                              );
+                              oldObject[selectedTable] = newSelectedTableData;
+                              return { ...oldObject };
+                            });
+                          }
+                        }}
+                      >
+                        Remove
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </li>
-          </div>
-        </ol>
+                      <div
+                        className="ui button"
+                        onClick={() => {
+                          if (selectedTable) {
+                            setFoodsByTable(oldObject => {
+                              oldObject[selectedTable] = [
+                                ...oldObject[selectedTable],
+                                food
+                              ];
+                              return { ...oldObject };
+                            });
+                          }
+                        }}
+                      >
+                        Add
+                      </div>
+                    </div>
+                    <div className="content">{food.nombre}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </Accordion.Content>
+        </Fragment>
       );
     }
   );
-  const pedidos = Object.entries(foodsByTable).map(([categoria, pedido]) => {
+
+  const pedidos = _.sortBy(Object.entries(foodsByTable), value => {
+    return value[0];
+  }).map(([categoria, pedido]) => {
     return (
       //Cada return es un "hijo"
       <ol className="ui list" key={categoria}>
         {categoria}
         <div className="ui center aligned list">
-          {pedido.map((pedido, key) => {
+          {_.sortBy(pedido, value => {
+            return prioridadCategorias[value.categoria];
+          }).map((pedido, key) => {
             return (
               <div className="ui top attached tabular menu">
                 <div className="item" key={key}>
@@ -166,201 +174,16 @@ function test() {
             </div>
           </div>
         </div>
-        <div className="column">{comidasList}</div>
+
+        <div className="column">
+          <Accordion fluid styled>
+            {comidasList}
+          </Accordion>
+        </div>
         <div className="ui vertical divider"></div>
       </div>
     </div>
   );
 }
-/*function test2() {
-  const [value, setValue] = useState("this");
 
-  const handleChange = (e, { value }) => setValue(value);
-
-  return (
-    <>
-      <div>
-        <div className="ui top attached tabular menu">
-          <div className="active item">Mesas</div>
-        </div>
-        <div className="ui bottom attached active tab segment">
-          <div className="ui buttons">
-            <button className="ui button">Mesa 1</button>
-            <button className="ui button">Mesa 2</button>
-            <button className="ui button">Mesa 3</button>
-            <button className="ui button">Mesa 4</button>
-            <button className="ui button">Mesa 5</button>
-            <button className="ui button">Mesa 6</button>
-            <button className="ui button">Mesa 7</button>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div className="ui top attached tabular menu">
-          <div className="active item">Pedidos</div>
-        </div>
-        <div className="ui bottom attached active tab segment">
-          <p></p>
-          <p></p>
-        </div>
-      </div>
-      <h2>
-        <ol className="ui list">
-          <li value="*">
-            Principales
-            <div className="ui middle aligned divided list">
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Confit Pato</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Risotto Camarones</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Raviol Zapallo</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Sorrentino Berenjena</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Filete Roquefort</div>
-              </div>
-            </div>
-          </li>
-          <li value="*">
-            Pizza
-            <div className="ui middle aligned divided list">
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza 1</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza 2</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza 3</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza 4</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza 5</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza 6</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza 7</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza 8</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza 9</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Pizza Peperronni</div>
-              </div>
-            </div>
-          </li>
-          <li value="*">
-            Bebestibles
-            <div className="ui middle aligned divided list">
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Bebidas</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Jugo</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Aperitivo</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Cerveza</div>
-              </div>
-            </div>
-          </li>
-          <li value="*">
-            Postres
-            <div className="ui middle aligned divided list">
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Brownie</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Creme Bruleé</div>
-              </div>
-              <div className="item">
-                <div className="right floated content">
-                  <div className="ui button">Add</div>
-                </div>
-                <div className="content">Tarte tatin</div>
-              </div>
-            </div>
-          </li>
-        </ol>
-      </h2>
-    </>
-  );
-}*/
 export default test;
