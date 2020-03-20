@@ -6,6 +6,7 @@ import { useImmer } from "use-immer";
 import _ from "lodash";
 import { Link, animateScroll as scroll } from "react-scroll";
 import prioridadCategorias from "../src/const/prioridadCategorias.json";
+
 function test() {
   const foodsByCategory = foods.reduce<
     Record<string, { nombre: string; categoria: string; precio: number }[]>
@@ -34,43 +35,45 @@ function test() {
       <Menu>
         {tables.map(mesa => {
           return (
-            <Menu.Item
-              key={mesa.nombre}
-              active={selectedTable === mesa.nombre}
-              onClick={() => {
-                setSelectedTable(mesa.nombre);
-                if (!(mesa.nombre in foodsByTable)) {
-                  setFoodsByTable(oldObject => {
-                    oldObject[mesa.nombre] = [];
-                    return oldObject;
-                  });
-                }
-                //Aqui agregar lo de foods a table
-              }}
-            >
-              {mesa.nombre}
-            </Menu.Item>
+            <Fragment key={mesa.nombre}>
+              <Menu.Item
+                key={mesa.nombre}
+                active={selectedTable === mesa.nombre}
+                onClick={() => {
+                  setSelectedTable(mesa.nombre);
+                  if (!(mesa.nombre in foodsByTable)) {
+                    setFoodsByTable(oldObject => {
+                      oldObject[mesa.nombre] = [];
+                      return oldObject;
+                    });
+                  }
+                  //Aqui agregar lo de foods a table
+                }}
+              >
+                {mesa.nombre}
+              </Menu.Item>
+            </Fragment>
           );
         })}
       </Menu>
     </>
   );
-  const [accordionActive, setAccordionActive] = useImmer([]);
+  const [FoodAccordionActive, setFoodAccordionActive] = useImmer([]);
   const comidasList = Object.entries(foodsByCategory).map(
     ([categoria, foods]) => {
       return (
         //Cada return es un "hijo"
         <Fragment key={categoria}>
           <Accordion.Title
-            active={accordionActive.includes(categoria)}
+            active={FoodAccordionActive.includes(categoria)}
             index={0}
             onClick={() => {
-              if (accordionActive.includes(categoria)) {
-                setAccordionActive(draft => {
+              if (FoodAccordionActive.includes(categoria)) {
+                setFoodAccordionActive(draft => {
                   draft.splice(draft.indexOf(categoria), 1);
                 });
               } else {
-                setAccordionActive(draft => {
+                setFoodAccordionActive(draft => {
                   draft.push(categoria);
                 });
               }
@@ -79,37 +82,15 @@ function test() {
             <Icon name="dropdown" />
             {categoria}
           </Accordion.Title>
-          <Accordion.Content active={accordionActive.includes(categoria)}>
-            <div className="ui middle aligned divided list">
+          <Accordion.Content active={FoodAccordionActive.includes(categoria)}>
+            <div className="ui middle aligned list">
               {foods.map((food, key) => {
                 <div className="content active"></div>;
                 return (
                   <div className="item" key={key}>
                     <div className="right floated content">
                       <div
-                        className="ui button"
-                        onClick={() => {
-                          if (selectedTable) {
-                            setFoodsByTable(oldObject => {
-                              const newSelectedTableData = [
-                                ...oldObject[selectedTable]
-                              ];
-                              newSelectedTableData.splice(
-                                newSelectedTableData.findIndex(element => {
-                                  return element.nombre === food.nombre;
-                                }),
-                                1
-                              );
-                              oldObject[selectedTable] = newSelectedTableData;
-                              return { ...oldObject };
-                            });
-                          }
-                        }}
-                      >
-                        Remove
-                      </div>
-                      <div
-                        className="ui button"
+                        className="mini ui button"
                         onClick={() => {
                           if (selectedTable) {
                             setFoodsByTable(oldObject => {
@@ -135,28 +116,95 @@ function test() {
       );
     }
   );
-
+  const [foodsByPedido] = useImmer([]);
+  Object.entries({ key: "pedido.nombre" }).map(
+    ([key, value]) => `${key}: ${value}`
+  );
+  const [PedidoAccordionActive, setPedidoAccordionActive] = useImmer([]);
   const pedidos = _.sortBy(Object.entries(foodsByTable), value => {
     return value[0];
-  }).map(([categoria, pedido]) => {
+  }).map(([table, pedido]) => {
     return (
-      //Cada return es un "hijo"
-      <ol className="ui list" key={categoria}>
-        {categoria}
-        <div className="ui center aligned list">
-          {_.sortBy(pedido, value => {
-            return prioridadCategorias[value.categoria];
-          }).map((pedido, key) => {
-            return (
-              <div className="ui top attached tabular menu">
-                <div className="item" key={key}>
-                  <div className="content">{pedido.nombre}</div>
+      <>
+        <ol className="ui list" key={table}>
+          <Fragment key={table}>
+            <Accordion.Title
+              active={PedidoAccordionActive.includes(table)}
+              index={0}
+              onClick={() => {
+                if (PedidoAccordionActive.includes(table)) {
+                  setPedidoAccordionActive(draft => {
+                    draft.splice(draft.indexOf(table), 1);
+                  });
+                } else {
+                  setPedidoAccordionActive(draft => {
+                    draft.push(table);
+                  });
+                }
+              }}
+            >
+              <Icon name="dropdown" />
+              {table}
+            </Accordion.Title>
+            <Accordion.Content>
+              <div className="content">
+                <div className="ui center aligned list">
+                  {_.sortBy(pedido, value => {
+                    return prioridadCategorias[value.categoria];
+                  }).map((pedido, key) => {
+                    return (
+                      <div className="content">
+                        <div className="item" key={key}>
+                          <div
+                            className="content"
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between"
+                            }}
+                          >
+                            <div style={{ float: "left" }}>{pedido.nombre}</div>
+                            <div style={{ float: "right" }}>
+                              ${pedido.precio}{" "}
+                              <div
+                                className="mini ui button"
+                                onClick={() => {
+                                  if (selectedTable) {
+                                    setFoodsByTable(oldObject => {
+                                      const newSelectedTableData = [
+                                        ...oldObject[selectedTable]
+                                      ];
+                                      newSelectedTableData.splice(
+                                        newSelectedTableData.findIndex(
+                                          element => {
+                                            return (
+                                              element.nombre === pedido.nombre
+                                            );
+                                          }
+                                        ),
+                                        1
+                                      );
+                                      oldObject[
+                                        selectedTable
+                                      ] = newSelectedTableData;
+                                      return { ...oldObject };
+                                    });
+                                  }
+                                }}
+                              >
+                                -
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </ol>
+            </Accordion.Content>
+          </Fragment>
+        </ol>
+      </>
     );
   });
 
@@ -169,6 +217,7 @@ function test() {
             <div className="ui top attached tabular menu">
               <div className="active item">Pedidos:</div>
             </div>
+
             <div className="ui bottom attached active tab segment">
               {pedidos}
             </div>
