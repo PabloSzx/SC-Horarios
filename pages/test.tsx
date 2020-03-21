@@ -1,5 +1,17 @@
 import React, { Component, useState, Fragment } from "react";
-import { Form, Checkbox, Accordion, Icon, Menu, Tab } from "semantic-ui-react";
+import {
+  Form,
+  Checkbox,
+  Accordion,
+  Icon,
+  Menu,
+  Tab,
+  ListItem,
+  Button,
+  Item,
+  ItemHeader,
+  ItemContent
+} from "semantic-ui-react";
 import foods from "../src/const/foods.json";
 import tables from "../src/const/tables.json";
 import { useImmer } from "use-immer";
@@ -85,12 +97,11 @@ function test() {
           <Accordion.Content active={FoodAccordionActive.includes(categoria)}>
             <div className="ui middle aligned list">
               {foods.map((food, key) => {
-                <div className="content active"></div>;
                 return (
                   <div className="item" key={key}>
-                    <div className="right floated content">
-                      <div
-                        className="mini ui button"
+                    <div style={{ float: "right" }}>
+                      <Button
+                        className="mini ui"
                         onClick={() => {
                           if (selectedTable) {
                             setFoodsByTable(oldObject => {
@@ -104,9 +115,11 @@ function test() {
                         }}
                       >
                         Add
-                      </div>
+                      </Button>
                     </div>
-                    <div className="content">{food.nombre}</div>
+                    <div className="content" style={{ float: "left" }}>
+                      {food.nombre}
+                    </div>
                   </div>
                 );
               })}
@@ -116,94 +129,87 @@ function test() {
       );
     }
   );
-  const [foodsByPedido] = useImmer([]);
-  Object.entries({ key: "pedido.nombre" }).map(
-    ([key, value]) => `${key}: ${value}`
-  );
+
+  /*const [foodsByPedido] = {foodsByCategory.map((value, index) => {
+    return  
+  })*/
+  //duda
   const [PedidoAccordionActive, setPedidoAccordionActive] = useImmer([]);
   const pedidos = _.sortBy(Object.entries(foodsByTable), value => {
     return value[0];
   }).map(([table, pedido]) => {
     return (
       <>
-        <ol className="ui list" key={table}>
-          <Fragment key={table}>
-            <Accordion.Title
-              active={PedidoAccordionActive.includes(table)}
-              index={0}
-              onClick={() => {
-                if (PedidoAccordionActive.includes(table)) {
-                  setPedidoAccordionActive(draft => {
-                    draft.splice(draft.indexOf(table), 1);
-                  });
-                } else {
-                  setPedidoAccordionActive(draft => {
-                    draft.push(table);
-                  });
-                }
-              }}
-            >
-              <Icon name="dropdown" />
-              {table}
-            </Accordion.Title>
-            <Accordion.Content>
-              <div className="content">
+        <Item>
+          <ol className="ui list" key={table}>
+            <Fragment key={table}>
+              <ItemHeader
+                active={PedidoAccordionActive.includes(table)}
+                index={0}
+                onClick={() => {
+                  if (PedidoAccordionActive.includes(table)) {
+                    setPedidoAccordionActive(draft => {
+                      draft.splice(draft.indexOf(table), 1);
+                    });
+                  } else {
+                    setPedidoAccordionActive(draft => {
+                      draft.push(table);
+                    });
+                  }
+                }}
+              >
+                {table}
+              </ItemHeader>
+              <ItemContent>
                 <div className="ui center aligned list">
                   {_.sortBy(pedido, value => {
                     return prioridadCategorias[value.categoria];
                   }).map((pedido, key) => {
                     return (
-                      <div className="content">
-                        <div className="item" key={key}>
-                          <div
-                            className="content"
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between"
+                      <div
+                        className="content"
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between"
+                        }}
+                      >
+                        <div style={{ float: "left" }}>{pedido.nombre}</div>
+
+                        <div style={{ float: "right" }}>
+                          ${pedido.precio}{" "}
+                          <Button //Boton de eliminacion de pedido
+                            className="mini ui"
+                            onClick={() => {
+                              if (selectedTable) {
+                                setFoodsByTable(oldObject => {
+                                  const newSelectedTableData = [
+                                    ...oldObject[selectedTable]
+                                  ];
+                                  newSelectedTableData.splice(
+                                    newSelectedTableData.findIndex(element => {
+                                      return element.nombre === pedido.nombre;
+                                    }),
+                                    1
+                                  );
+                                  oldObject[
+                                    selectedTable
+                                  ] = newSelectedTableData;
+                                  return { ...oldObject };
+                                });
+                              }
                             }}
                           >
-                            <div style={{ float: "left" }}>{pedido.nombre}</div>
-                            <div style={{ float: "right" }}>
-                              ${pedido.precio}{" "}
-                              <div
-                                className="mini ui button"
-                                onClick={() => {
-                                  if (selectedTable) {
-                                    setFoodsByTable(oldObject => {
-                                      const newSelectedTableData = [
-                                        ...oldObject[selectedTable]
-                                      ];
-                                      newSelectedTableData.splice(
-                                        newSelectedTableData.findIndex(
-                                          element => {
-                                            return (
-                                              element.nombre === pedido.nombre
-                                            );
-                                          }
-                                        ),
-                                        1
-                                      );
-                                      oldObject[
-                                        selectedTable
-                                      ] = newSelectedTableData;
-                                      return { ...oldObject };
-                                    });
-                                  }
-                                }}
-                              >
-                                -
-                              </div>
-                            </div>
-                          </div>
+                            -
+                          </Button>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-              </div>
-            </Accordion.Content>
-          </Fragment>
-        </ol>
+              </ItemContent>
+            </Fragment>
+          </ol>
+        </Item>
       </>
     );
   });
@@ -217,9 +223,8 @@ function test() {
             <div className="ui top attached tabular menu">
               <div className="active item">Pedidos:</div>
             </div>
-
             <div className="ui bottom attached active tab segment">
-              {pedidos}
+              <div className="content">{pedidos}</div>
             </div>
           </div>
         </div>
