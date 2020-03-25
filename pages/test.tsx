@@ -10,7 +10,10 @@ import {
   Button,
   Item,
   ItemHeader,
-  ItemContent
+  ItemContent,
+  Segment,
+  Grid,
+  Header
 } from "semantic-ui-react";
 import foods from "../src/const/foods.json";
 import tables from "../src/const/tables.json";
@@ -18,6 +21,8 @@ import { useImmer } from "use-immer";
 import _ from "lodash";
 import { Link, animateScroll as scroll } from "react-scroll";
 import prioridadCategorias from "../src/const/prioridadCategorias.json";
+import { type } from "os";
+import { writeHeapSnapshot } from "v8";
 
 function test() {
   const foodsByCategory = foods.reduce<
@@ -132,9 +137,76 @@ function test() {
 
   /*const [foodsByPedido] = {foodsByCategory.map((value, index) => {
     return  
-  })*/
+  })
+  const foodsByPedido = foods.entries();*/
   //duda
-  const [PedidoAccordionActive, setPedidoAccordionActive] = useImmer([]);
+
+  //Parte pedidos
+  /*function diccionaryForMesa() {
+    this.datastore = [];
+    this.add = function(key, value) {
+      if (key && value) {
+        this.datastore.push({
+          key: key,
+          value: value
+
+        });
+      }
+      return this.datastore;
+    };
+    this.removeAt = function(key) {
+      for (var i = 0; i < this.datastore.length; i++) {
+        if (this.datastore[i].key == key) {
+          this.datastore.splice(this.datasotre[i], 1);
+          return this.datastore;
+        }
+      }
+    };
+    this.search = function(key) {
+      for (var i = 0; i < this.datastore.length; i++) {
+        if (this.datastore[i].key == key) {
+          return true;
+        }
+      }
+      return false;
+    };
+  }
+  function diccionaryforPedido() {
+    this.datastore = [];
+    this.add = function(key, value) {
+      if (key && value) {
+        this.datastore.push({
+          key: key,
+          value: value
+
+        });
+      }
+      return this.datastore;
+    };
+    this.removeAt = function(key) {
+      for (var i = 0; i < this.datastore.length; i++) {
+        if (this.datastore[i].key == key) {
+          this.datastore.splice(this.datasotre[i], 1);
+          return this.datastore;
+        }
+      }
+    };
+    this.search = function(key) {
+      for (var i = 0; i < this.datastore.length; i++) {
+        if (this.datastore[i].key == key) {
+          return true;
+        }
+      }
+      return false;
+    };
+  }
+  let foodsByPedido = new diccionaryForMesa();
+  if (foodsByPedido.search(key)){
+
+  }
+  else{
+    foodsByPedido.add(key, (pedidos=new diccionaryforPedido()))
+  }*/
   const pedidos = _.sortBy(Object.entries(foodsByTable), value => {
     return value[0];
   }).map(([table, pedido]) => {
@@ -143,23 +215,7 @@ function test() {
         <Item>
           <ol className="ui list" key={table}>
             <Fragment key={table}>
-              <ItemHeader
-                active={PedidoAccordionActive.includes(table)}
-                index={0}
-                onClick={() => {
-                  if (PedidoAccordionActive.includes(table)) {
-                    setPedidoAccordionActive(draft => {
-                      draft.splice(draft.indexOf(table), 1);
-                    });
-                  } else {
-                    setPedidoAccordionActive(draft => {
-                      draft.push(table);
-                    });
-                  }
-                }}
-              >
-                {table}
-              </ItemHeader>
+              <ItemHeader>{table}</ItemHeader>
               <ItemContent>
                 <div className="ui center aligned list">
                   {_.sortBy(pedido, value => {
@@ -214,29 +270,26 @@ function test() {
     );
   });
 
+  //Lo que se muestra
   return (
-    <div className="ui segment">
-      <div className="ui two column very relaxed grid">
-        <div className="column">
+    <Segment>
+      <Grid columns={2} relaxed="very" stackable>
+        <Grid.Column>
           {tablesList}
-          <div>
-            <div className="ui top attached tabular menu">
-              <div className="active item">Pedidos:</div>
-            </div>
-            <div className="ui bottom attached active tab segment">
-              <div className="content">{pedidos}</div>
-            </div>
-          </div>
-        </div>
+          <>
+            <Header styled="fluid">Pedidos:</Header>
+            <Segment attached="bottom">{pedidos}</Segment>
+          </>
+        </Grid.Column>
 
-        <div className="column">
+        <Grid.Column>
           <Accordion fluid styled>
             {comidasList}
           </Accordion>
-        </div>
+        </Grid.Column>
         <div className="ui vertical divider"></div>
-      </div>
-    </div>
+      </Grid>
+    </Segment>
   );
 }
 
