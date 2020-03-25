@@ -1,28 +1,27 @@
-import React, { Component, useState, Fragment } from "react";
-import {
-  Form,
-  Checkbox,
-  Accordion,
-  Icon,
-  Menu,
-  Tab,
-  ListItem,
-  Button,
-  Item,
-  ItemHeader,
-  ItemContent,
-  Segment,
-  Grid,
-  Header
-} from "semantic-ui-react";
-import foods from "../src/const/foods.json";
-import tables from "../src/const/tables.json";
-import { useImmer } from "use-immer";
 import _ from "lodash";
-import { Link, animateScroll as scroll } from "react-scroll";
+import React, { FC, Fragment, useState } from "react";
+import { animateScroll as scroll, Link } from "react-scroll";
+import {
+  Accordion,
+  Button,
+  Checkbox,
+  Form,
+  Grid,
+  Header,
+  Icon,
+  Item,
+  ItemContent,
+  ItemHeader,
+  ListItem,
+  Menu,
+  Segment,
+  Tab,
+} from "semantic-ui-react";
+import { useImmer } from "use-immer";
+
+import foods from "../src/const/foods.json";
 import prioridadCategorias from "../src/const/prioridadCategorias.json";
-import { type } from "os";
-import { writeHeapSnapshot } from "v8";
+import tables from "../src/const/tables.json";
 
 function test() {
   const foodsByCategory = foods.reduce<
@@ -38,8 +37,11 @@ function test() {
   }, {});
 
   const [selectedTable, setSelectedTable] = useState<string | undefined>();
-  const [foodsByTable, setFoodsByTable] = useState<
-    Record<string, { nombre: string; precio: number; categoria: string }[]>
+  const [foodsByTable, setFoodsByTable] = useImmer<
+    Record<
+      string,
+      { nombre: string; precio: number; categoria: string; n: number }[]
+    >
   >({});
 
   const tablesList = (
@@ -59,9 +61,8 @@ function test() {
                 onClick={() => {
                   setSelectedTable(mesa.nombre);
                   if (!(mesa.nombre in foodsByTable)) {
-                    setFoodsByTable(oldObject => {
-                      oldObject[mesa.nombre] = [];
-                      return oldObject;
+                    setFoodsByTable(draft => {
+                      draft[mesa.nombre] = [];
                     });
                   }
                   //Aqui agregar lo de foods a table
@@ -109,12 +110,15 @@ function test() {
                         className="mini ui"
                         onClick={() => {
                           if (selectedTable) {
-                            setFoodsByTable(oldObject => {
-                              oldObject[selectedTable] = [
-                                ...oldObject[selectedTable],
-                                food
-                              ];
-                              return { ...oldObject };
+                            setFoodsByTable(draft => {
+                              const foundFood = draft[selectedTable].find(
+                                value => food.nombre === value.nombre
+                              );
+                              if (foundFood) {
+                                foundFood.n += 1;
+                              } else {
+                                draft[selectedTable].push({ ...food, n: 1 });
+                              }
                             });
                           }
                         }}
@@ -135,78 +139,6 @@ function test() {
     }
   );
 
-  /*const [foodsByPedido] = {foodsByCategory.map((value, index) => {
-    return  
-  })
-  const foodsByPedido = foods.entries();*/
-  //duda
-
-  //Parte pedidos
-  /*function diccionaryForMesa() {
-    this.datastore = [];
-    this.add = function(key, value) {
-      if (key && value) {
-        this.datastore.push({
-          key: key,
-          value: value
-
-        });
-      }
-      return this.datastore;
-    };
-    this.removeAt = function(key) {
-      for (var i = 0; i < this.datastore.length; i++) {
-        if (this.datastore[i].key == key) {
-          this.datastore.splice(this.datasotre[i], 1);
-          return this.datastore;
-        }
-      }
-    };
-    this.search = function(key) {
-      for (var i = 0; i < this.datastore.length; i++) {
-        if (this.datastore[i].key == key) {
-          return true;
-        }
-      }
-      return false;
-    };
-  }
-  function diccionaryforPedido() {
-    this.datastore = [];
-    this.add = function(key, value) {
-      if (key && value) {
-        this.datastore.push({
-          key: key,
-          value: value
-
-        });
-      }
-      return this.datastore;
-    };
-    this.removeAt = function(key) {
-      for (var i = 0; i < this.datastore.length; i++) {
-        if (this.datastore[i].key == key) {
-          this.datastore.splice(this.datasotre[i], 1);
-          return this.datastore;
-        }
-      }
-    };
-    this.search = function(key) {
-      for (var i = 0; i < this.datastore.length; i++) {
-        if (this.datastore[i].key == key) {
-          return true;
-        }
-      }
-      return false;
-    };
-  }
-  let foodsByPedido = new diccionaryForMesa();
-  if (foodsByPedido.search(key)){
-
-  }
-  else{
-    foodsByPedido.add(key, (pedidos=new diccionaryforPedido()))
-  }*/
   const pedidos = _.sortBy(Object.entries(foodsByTable), value => {
     return value[0];
   }).map(([table, pedido]) => {
@@ -230,27 +162,29 @@ function test() {
                         }}
                       >
                         <div style={{ float: "left" }}>{pedido.nombre}</div>
+                        <div style={{ float: "left" }}>{pedido.n}</div>
 
                         <div style={{ float: "right" }}>
-                          ${pedido.precio}{" "}
+                          ${pedido.precio * pedido.n}{" "}
                           <Button //Boton de eliminacion de pedido
                             className="mini ui"
                             onClick={() => {
-                              if (selectedTable) {
-                                setFoodsByTable(oldObject => {
-                                  const newSelectedTableData = [
-                                    ...oldObject[selectedTable]
-                                  ];
-                                  newSelectedTableData.splice(
-                                    newSelectedTableData.findIndex(element => {
-                                      return element.nombre === pedido.nombre;
-                                    }),
-                                    1
+                              if (table) {
+                                setFoodsByTable(draft => {
+                                  const foundFood = draft[table].find(
+                                    value => pedido.nombre === value.nombre
                                   );
-                                  oldObject[
-                                    selectedTable
-                                  ] = newSelectedTableData;
-                                  return { ...oldObject };
+
+                                  const foundFoodIndex = draft[table].findIndex(
+                                    value => pedido.nombre === value.nombre
+                                  );
+
+                                  if (foundFood) {
+                                    foundFood.n -= 1;
+                                    if (foundFood.n === 0) {
+                                      draft[table].splice(foundFoodIndex, 1);
+                                    }
+                                  }
                                 });
                               }
                             }}
@@ -270,26 +204,29 @@ function test() {
     );
   });
 
+  console.log(JSON.stringify(Object.entries(foodsByTable), null, 2));
   //Lo que se muestra
-  return (
-    <Segment>
-      <Grid columns={2} relaxed="very" stackable>
-        <Grid.Column>
-          {tablesList}
-          <>
-            <Header styled="fluid">Pedidos:</Header>
-            <Segment attached="bottom">{pedidos}</Segment>
-          </>
-        </Grid.Column>
 
-        <Grid.Column>
-          <Accordion fluid styled>
-            {comidasList}
-          </Accordion>
-        </Grid.Column>
-        <div className="ui vertical divider"></div>
-      </Grid>
-    </Segment>
+  return (
+    <>
+      <Segment>
+        <Grid columns={2} relaxed="very" stackable>
+          <Grid.Column>
+            {tablesList}
+            <>
+              <Header styled="fluid">Pedidos:</Header>
+              <Segment attached="bottom">{pedidos}</Segment>
+            </>
+          </Grid.Column>
+
+          <Grid.Column>
+            <Accordion fluid styled>
+              {comidasList}
+            </Accordion>
+          </Grid.Column>
+        </Grid>
+      </Segment>
+    </>
   );
 }
 
